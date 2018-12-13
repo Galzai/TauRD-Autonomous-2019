@@ -18,8 +18,9 @@ uint8_t init_vision(bool testMode);
 /*
 * @brief detect cone bounding boxes via darknet
 * @param [output] pResult_vec vector to hold all the bounding boxes (pixels)
+* @param [input] write_video - set to 1 if you would like to record detection video
  */
-uint8_t detect_cones(vector<bbox_t> const *pResult_vec);
+uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t write_video);
 
 /*
 * @brief detect cone bounding boxes via darknet
