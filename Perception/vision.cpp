@@ -46,10 +46,8 @@ void draw_cones(Mat mat_img, vector<bbox_t> result_vec, vector<string> obj_names
 			cone_num= i.track_id;
 		}
 
+		// Mark cone with triangle
 		triangle(mat_img,i.x,i.y,i.w,i.h,color);
-		//		rectangle(mat_img, Rect(i.x, i.y, i.w, i.h), color, 3);
-		//		if(obj_names.size() > i.obj_id)
-		//			putText(mat_img, obj_names[i.obj_id], Point2f(i.x, i.y - 10), FONT_HERSHEY_COMPLEX_SMALL, 1, color);
 
 		//tracking id
 		if(i.track_id > 0)
@@ -60,9 +58,6 @@ void draw_cones(Mat mat_img, vector<bbox_t> result_vec, vector<string> obj_names
 		stream << fixed << setprecision(2) << i.prob;
 		string probString = stream.str();
 		putText(mat_img, probString, Point2f(i.x+5, (i.y + 15)+i.h), FONT_HERSHEY_COMPLEX_SMALL, 0.7, color);
-
-
-
 
 	}
 	putText(mat_img, "Cones: "+to_string(cone_num), Point2f(mat_img.cols-220, 22), FONT_HERSHEY_PLAIN, 2, fpscolor,2);
