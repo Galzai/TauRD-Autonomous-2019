@@ -23,10 +23,16 @@ struct control_cmd_t{
 
 };
 /*
- * @brief initialize connection to the simulation environment
+ * @brief initialize connection to the simulation environment data socket
  * @return SUCCESSS if filtering performed correctly
  * */
-uint8_t init_connection();
+uint8_t init_rcv_connection();
+
+/*
+ * @brief initialize connection to the simulation environment command socket
+ * @return SUCCESSS if filtering performed correctly
+ * */
+uint8_t init_send_connection();
 
 /*
  * @brief send control signal
@@ -36,10 +42,10 @@ uint8_t init_connection();
 uint8_t send_control(control_cmd_t controls);
 
 /*
- * @brief receive image ,gps , imu data etc
+ * @brief capture an image from the simulator
 y
  * */
-void recieve_data(void);
+cv::Mat sim_capture_image(void);
 
 
 
