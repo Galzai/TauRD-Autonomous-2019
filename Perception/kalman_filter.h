@@ -16,7 +16,7 @@
  * @param [output] pCur_cordinates address of the value to update the coordinates to
  * @return SUCCESSS if filtering performed correctly
  * */
-uint8_t kalman_filter(sensor_data_t sensorData, coordinates_t *pCur_coordinates);
+uint8_t kalman_filter(sensor_data_t sensorData, coordinates_t *pCur_coordinates , bool testMode);
 
 
 

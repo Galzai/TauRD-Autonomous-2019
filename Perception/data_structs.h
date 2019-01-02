@@ -34,6 +34,13 @@ struct cone_t{
  */
 struct imu_data_t{
 
+	float heading; //heading angle [radian]
+	float angular_acc_x; //x angular acceleration [radian/s^2]
+	float angular_acc_y; //y angular acceleration [radian/s^2]
+	float angular_acc_z; //z angular acceleration [radian/s^2]
+	float linear_acc_x;  //x linear acceleration [meter/s^2]
+	float linear_acc_y; //y linear acceleration [meter/s^2]
+
 };
 
 
@@ -44,7 +51,7 @@ struct sensor_data_t{
 
 	coordinates_t gps_coordinates; //coordinates retrieved from gps
 	imu_data_t imu_data;
-	float wheel_rpm;
+	//float wheel_rpm;
 	float steering_angle; //[radian]
 };
 
