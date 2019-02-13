@@ -15,6 +15,14 @@
 #define SUCCESS 1
 
 /*
+ * define cone types
+ */
+#define ORANGE_L 0 // large orange cone
+#define ORANGE_S 1 // small orange cone
+#define YELLOW 2 // yellow cone
+#define BLUE 3 // blue cone
+
+/*
  * @brief data type for holding coordinates
  */
 struct coordinates_t{

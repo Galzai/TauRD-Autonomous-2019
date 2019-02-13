@@ -151,7 +151,7 @@
 								<option defaultValue="nvcc.compiler.optimization.level.none" id="nvcc.compiler.optimization.level.2103890401" name="Optimization Level" superClass="nvcc.compiler.optimization.level" valueType="enumerated"/>
 								<option id="nvcc.compiler.pic.1711760089" name="Position Independent Code (-fPIC)" superClass="nvcc.compiler.pic"/>
 								<option id="nvcc.compiler.include.paths.184387041" name="Include paths (-I)" superClass="nvcc.compiler.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/usr/local/zed/include"/>
+									<listOptionValue builtIn="false" value="/usr/local/zed/include/"/>
 									<listOptionValue builtIn="false" value="/usr/include/"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.551589498" superClass="nvcc.compiler.input.cu"/>
@@ -161,7 +161,6 @@
 							<tool command="nvcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GLDErrorParser;nvcc.errorParser" id="nvcc.linker.base.51573117" name="NVCC Linker" superClass="nvcc.linker.base">
 								<option id="nvcc.linker.option.paths.874729036" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
-									<listOptionValue builtIn="false" value="/lib/x86_64-linux-gnu/"/>
 									<listOptionValue builtIn="false" value="/usr/local/zed/lib/"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Perception/libraries}&quot;"/>
 								</option>

@@ -17,8 +17,8 @@ CPP_DEPS += \
 Perception/%.o: ../Perception/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: NVCC Compiler'
-	/usr/local/cuda-10.0/bin/nvcc -I/usr/local/zed/include -I/usr/include/ -G -g -O0 -gencode arch=compute_52,code=sm_52  -odir "Perception" -M -o "$(@:%.o=%.d)" "$<"
-	/usr/local/cuda-10.0/bin/nvcc -I/usr/local/zed/include -I/usr/include/ -G -g -O0 --compile  -x c++ -o  "$@" "$<"
+	/usr/local/cuda-10.0/bin/nvcc -I/usr/local/zed/include/ -I/usr/include/ -G -g -O0 -gencode arch=compute_52,code=sm_52  -odir "Perception" -M -o "$(@:%.o=%.d)" "$<"
+	/usr/local/cuda-10.0/bin/nvcc -I/usr/local/zed/include/ -I/usr/include/ -G -g -O0 --compile  -x c++ -o  "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
