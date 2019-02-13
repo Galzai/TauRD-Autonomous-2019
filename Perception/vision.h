@@ -8,6 +8,8 @@
 #ifndef VISION_H_
 #define VISION_H_
 
+#include "data_structs.h"
+
 /*
  * @brief initialize vision sensors
  * @param [input] testMode set to true to connect to simulator, otherwise connect to vehicle
@@ -17,17 +19,17 @@ uint8_t init_vision(bool testMode);
 
 /*
 * @brief detect cone bounding boxes via darknet
-* @param [output] pResult_vec vector to hold all the bounding boxes (pixels)
+* @param [output] rResult_vec vector to hold all the bounding boxes (pixels)
 * @param [input] write_video - set to 1 if you would like to record detection video
  */
-uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t write_video);
+uint8_t detect_cones(std::vector<bbox_t> &rResult_vec, uint8_t write_video);
 
 /*
 * @brief detect cone bounding boxes via darknet
-* @param [input] pResult_vec vector to hold all the bounding boxes
-* @param [output] pResult_vec vector to hold all the cones
+* @param [input] rResult_vec vector to hold all the bounding boxes
+* @param [output] rResult_vec vector to hold all the cones
  */
-uint8_t detect_cones_distance(vector<bbox_t> const *pResult_vec, vector<cone_t> const *pDist_vec);
+uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec);
 
 /*
 * @brief handle case of flag start/stop cones

@@ -10,7 +10,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "data_structs.h"
+#include "../Perception/data_structs.h"
 #include "tcp_client.h"
 
 using namespace std;
@@ -158,7 +158,7 @@ uint8_t init_send_connection(){
 }
 
 // capture images from the simulator
-cv::Mat sim_capture_image(void){
+cv::Mat sim_capture_image(bool printData = false){
 
 	cv::Mat rcv_img;
 	string buf = "frame";
@@ -191,8 +191,10 @@ cv::Mat sim_capture_image(void){
 			size_t img_size = stoi(im_data[2]);
 			//TODO: parse time stamp
 			//time_t time_stamp = stol(im_data[3]);
-			cout <<  " IMG " << " | Width: " << width << " | Height: "<< height <<" | Size: "<< img_size << " Bytes << endl;
 
+			if(printData){
+				cout <<  " IMG " << " | Width: " << width << " | Height: "<< height <<" | Size: "<< img_size << " Bytes" << endl;
+			}
 			string ack_buf = "ok";
 			sendRes = send(rcv_sock, ack_buf.c_str(), ack_buf.size()+1, 0);
 
@@ -249,7 +251,7 @@ cv::Mat sim_capture_image(void){
 }
 
 // capture images from the simulator
-std::vector <sensor_data_t> sim_capture_sensor_data(void){
+std::vector <sensor_data_t> sim_capture_sensor_data(bool printData = false){
 
 	sensor_data_t sensorData;
 	sensor_data_t realData;
@@ -315,7 +317,8 @@ std::vector <sensor_data_t> sim_capture_sensor_data(void){
 			// parse the image data
 			vector <string> im_data = parse_buf(data_buf_str, ",");
 			sensorData.coordinates.x = stof(im_data[0]);
-			sensorData.coordinates.y = stof(im_data[2]);
+			sensorData.coordinates.y = stof(im_data[1]);
+			sensorData.kinematic_data.heading = stof(im_data[2]);
 			sensorData.kinematic_data.angular_acc_x = stof(im_data[3]);
 			sensorData.kinematic_data.angular_acc_y  = stof(im_data[4]);
 			sensorData.kinematic_data.angular_acc_z = stof(im_data[5]);
@@ -326,18 +329,19 @@ std::vector <sensor_data_t> sim_capture_sensor_data(void){
 			realData.coordinates.x = stof(im_data[9]);
 			realData.coordinates.y = stof(im_data[10]);
 			realData.kinematic_data.angular_acc_x = stof(im_data[11]);
-			realData.kinematic_data.angular_acc_y  = stof(im_data[12]);
-			realData.kinematic_data.angular_acc_z = stof(im_data[13]);
-			realData.kinematic_data.linear_acc_x = stof(im_data[14]);
+			realData.kinematic_data.heading = stof(im_data[12]);
+			realData.kinematic_data.angular_acc_y  = stof(im_data[13]);
+			realData.kinematic_data.angular_acc_z = stof(im_data[14]);
 			realData.kinematic_data.linear_acc_x = stof(im_data[15]);
-			realData.lin_velocity = stof(im_data[16]);
+			realData.kinematic_data.linear_acc_x = stof(im_data[16]);
+			realData.lin_velocity = stof(im_data[17]);
 
-
-			cout <<  " Sensors " << " | GPS [m]: [" << sensorData.coordinates.x << ", "<< sensorData.coordinates.y << "] " <<""
-			"| Angular [radian/s^2]: ["<< sensorData.kinematic_data.angular_acc_x <<", "<< sensorData.kinematic_data.angular_acc_y <<
-			", "<< sensorData.kinematic_data.angular_acc_z << "] " << "| Linear [m/s^2]: [" << sensorData.kinematic_data.linear_acc_x << ", "<<
-			sensorData.kinematic_data.linear_acc_y <<"]" << "| Velocity [m/s]: "<< sensorData.lin_velocity << endl;
-			;
+			if(printData){
+				cout  << " GPS:[" << sensorData.coordinates.x << ", "<< sensorData.coordinates.y << "][m]" <<" |Heading:"<< sensorData.kinematic_data.heading<<" [rad]"
+					"| Ang acc:["<< sensorData.kinematic_data.angular_acc_x <<", "<< sensorData.kinematic_data.angular_acc_y <<
+				", "<< sensorData.kinematic_data.angular_acc_z << "][rad/s^2] " << "| Lin acc:[" << sensorData.kinematic_data.linear_acc_x << ", "<<
+				sensorData.kinematic_data.linear_acc_y <<"][m/s^2]" << "| Velocity : "<< sensorData.lin_velocity<< "[m/s]" << endl;
+			}
 			resData.push_back(sensorData);
 			resData.push_back(realData);
 
@@ -376,3 +380,39 @@ uint8_t send_control(control_cmd_t controls){
 	return SUCCESS;
 }
 
+
+// Function for testing client
+int client_tester()
+{
+	string temp;
+//	init_send_connection();
+	init_rcv_image_connection();
+	cout <<"Please wait after entering y on the server and enter y:" <<endl;
+	cin >> setw(1) >> temp;
+	init_sensor_connection();
+
+	usleep(10000000);
+	//control_cmd_t test;
+	//test.steering = 0;
+	//test.throttle = 1;
+	cv::namedWindow("ImageWindow", CV_WINDOW_NORMAL);
+	while(true){
+		sim_capture_sensor_data(true);
+		cv::imshow("ImageWindow", sim_capture_image(false));
+		cv::waitKey(1);
+//		if (send_control(test) == FAILED){
+//			cout << "failed to send test !" <<endl;
+//		}
+//		else{
+//			cout<< "success" << endl;
+//		}
+//		test.steering += 0.0001 ;
+
+
+	}
+
+	close(rcv_sock);
+	exit(0);
+
+	return 0;
+}

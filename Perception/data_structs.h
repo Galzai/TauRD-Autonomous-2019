@@ -9,6 +9,12 @@
 #define DATA_STRUCTS_H_
 
 /*
+ * define success and failure codes
+ */
+#define FAILED -1
+#define SUCCESS 1
+
+/*
  * @brief data type for holding coordinates
  */
 struct coordinates_t{
@@ -34,10 +40,10 @@ struct cone_t{
  */
 struct imu_data_t{
 
-	float heading; //heading angle [radian]
 	float angular_acc_x; //x angular acceleration [radian/s^2]
 	float angular_acc_y; //y angular acceleration [radian/s^2]
 	float angular_acc_z; //z angular acceleration [radian/s^2]
+	float heading; //heading angle [radian]
 	float linear_acc_x;  //x linear acceleration [meter/s^2]
 	float linear_acc_y; //y linear acceleration [meter/s^2]
 
@@ -49,16 +55,16 @@ struct imu_data_t{
  */
 struct sensor_data_t{
 
-	coordinates_t gps_coordinates; //coordinates retrieved from gps
-	imu_data_t imu_data;
-	//float wheel_rpm;
-	float steering_angle; //[radian]
+	coordinates_t coordinates; //coordinates retrieved from gps
+	imu_data_t kinematic_data;
+	float lin_velocity; // vehicle velocity in [m/s]
+	//float steering_angle; //[radian]
 };
 
 /*
  * @brief data type for cone mapping
  */
-typedef vector <cone_t> map_t;
+typedef std::vector <cone_t> map_t;
 
 
 #endif /* DATA_STRUCTS_H_ */

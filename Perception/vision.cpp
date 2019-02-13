@@ -12,14 +12,19 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/opencv.hpp>
 
+//Zed headers
+#include </usr/local/zed/include/sl/Camera.hpp>
+
 #define OPENCV  //Enable OpenCV for yolo
-#include <yolo_v2_class.hpp> //yolo cpp wrapper
+#include "../Perception/libraries/yolo_v2_class.hpp" //yolo cpp wrapper
 
 #include "vision.h"
 
 using namespace std;
 using namespace cv;
 
+// Initialize the ZED Camera
+sl::Camera zed;
 struct timeval t1, t2;
 int fps = 0;
 unsigned int cone_num = 0;
@@ -86,7 +91,7 @@ vector<string> objects_names_from_file(string const filename) {
 	return file_lines;
 }
 
-uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t video_out){
+uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 
 	//Paths
 	string cfg_path = "yolov3-tiny-obj.cfg";
@@ -96,12 +101,6 @@ uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t video_out){
 
 	//Confidence threshold
 	float confThreshold = 0.4;
-
-	//Setup output video
-	if (video_out == 1){
-		string output_file_path = file_path;
-		output_file_path.replace(output_file_path.end()-4, output_file_path.end(), "-yolo.avi");
-	}
 
 	//Initialize the detector
 	Detector detector(cfg_path,weights_path);
@@ -118,8 +117,11 @@ uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t video_out){
 	//TODO: Modify for using the zed camera
 	VideoCapture cap(file_path);
 
-	if (video_out == 1){
+	//Setup writing video if enabled
+	if (write_video == true){
 	//Open the output video
+		string output_file_path = file_path;
+		output_file_path.replace(output_file_path.end()-4, output_file_path.end(), "-yolo.avi");
 		video_out.open(output_file_path, VideoWriter::fourcc('M','J','P','G'), 28, Size(cap.get(CAP_PROP_FRAME_WIDTH), cap.get(CAP_PROP_FRAME_HEIGHT)));
 	}
 
@@ -137,7 +139,7 @@ uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t video_out){
 		//detect objects in frames with threshold over confThreshold
 		vector<bbox_t> result_vec = detector.detect(frame, confThreshold);
 		result_vec = detector.tracking_id(result_vec); // add tracking id to the vector
-		memcpy(pResult_vec, result_vec,result_vec.size()*sizeof(bbox_t));
+		rResult_vec = result_vec;
 
 		//stop timer
 		gettimeofday(&t2, NULL);
@@ -149,7 +151,7 @@ uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t video_out){
 		show_result(result_vec, obj_names);
 
 		//record video
-		if (video_out == 1){
+		if (write_video == true){
 			//draw the cones
 			draw_cones(frame, result_vec, obj_names, wait_ms);
 			//write out to file
@@ -157,11 +159,27 @@ uint8_t detect_cones(vector<bbox_t> const *pResult_vec, uint8_t video_out){
 		}
 
 	}
-	if (video_out == 1){
+	if (write_video == true){
 		video_out.release();
 	}
 
 
 	return SUCCESS;
 
+}
+
+// Initialize the ZED Camera
+
+uint8_t init_zed_cam(){
+
+	sl::InitParameters init_params;
+	init_params.camera_resolution = sl::RESOLUTION_VGA;
+	init_params.camera_fps = 100;
+
+	uint8_t err;
+	err = zed.open(init_params);
+
+
+
+	return SUCCESS;
 }

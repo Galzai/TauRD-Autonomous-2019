@@ -8,8 +8,7 @@
 #ifndef TCP_CLIENT_H_
 #define TCP_CLIENT_H_
 
-#define FAILED -1
-#define SUCCESS 1
+
 
 // Struct for holding control parameters
 struct control_cmd_t{
@@ -71,6 +70,11 @@ uint8_t sim_get_magnetometer_data(void);
  * @brief get imu data
  * */
 uint8_t sim_get_real_data(void);
+
+/*
+ * @brief used for testing the client function
+ * */
+int client_tester(void);
 
 
 
