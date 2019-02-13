@@ -34,7 +34,6 @@
 
 //Zed headers
 #include <sl/Camera.hpp>
-#include <sl/Core.hpp>
 
 #define OPENCV  //Enable OpenCV for yolo
 #include "../Perception/libraries/yolo_v2_class.hpp" //yolo cpp wrapper
@@ -46,6 +45,9 @@ using namespace std;
 
 // Initialize the ZED Camera
 sl::Camera zed;
+sl::Mat cur_frame_zed(zed.getResolution(), sl::MAT_TYPE_8U_C4);
+
+// Initialize fps counter
 struct timeval t1, t2;
 int fps = 0;
 unsigned int cone_num = 0;
@@ -134,24 +136,7 @@ void show_result(vector<bbox_t> const result_vec, vector<string> const obj_names
 		cout <<"FPS: "<<fps<< ", obj_id = " << i.obj_id<< ", tracking id = "<< i.track_id<< ",  x = " << i.x << ", y = " << i.y
 				<< ", w = " << i.w << ", h = " << i.h
 				<< setprecision(3) << ", prob = " << i.prob << endl;
-	}/*
-	 * This program is free software; you can redistribute it and/or modify
-	 * it under the terms of the GNU General Public License as published by
-	 * the Free Software Foundation; either version 2 of the License, or
-	 * (at your option) any later version.
-	 *
-	 * This program is distributed in the hope that it will be useful,
-	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	 * GNU General Public License for more details.
-	 *
-	 * You should have received a copy of the GNU General Public License
-	 * along with this program; if not, write to the Free Software
-	 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-	 * MA 02110-1301, USA.
-	 *
-	 * 2019 Tel-Aviv university formula student team.
-	 */
+	}
 }
 
 //parse object names
@@ -162,6 +147,28 @@ vector<string> objects_names_from_file(string const filename) {
 	for(string line; file >> line;) file_lines.push_back(line);
 	cout << "object names loaded \n";
 	return file_lines;
+}
+
+// get distance from cones
+uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec , vector<string> const obj_names){
+	for (auto &box : rResult_vec) {
+		cone_t cur_cone;
+		// Check cone type
+		string obj_typ = obj_names[box.obj_id];
+		if (obj_typ == "orange_l"){
+			cur_cone.cone_type = ORANGE_L;
+		}
+		if (obj_typ == "orange_s"){
+			cur_cone.cone_type = ORANGE_S;
+		}
+		if (obj_typ == "yellow"){
+			cur_cone.cone_type = YELLOW;
+		}
+		if (obj_typ == "blue"){
+			cur_cone.cone_type = BLUE;
+		}
+
+	}
 }
 
 uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
@@ -185,7 +192,6 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 	detector.nms = 0.02;
 
 	//Capture each frame until we finish the video
-	sl::Mat cur_frame_zed(zed.getResolution(), sl::MAT_TYPE_8U_C4);
 	cv::Mat cur_frame_cv = slMat2cvMat(cur_frame_zed);
 
 	//Setup writing video if enabled
@@ -216,8 +222,9 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 		result_vec = detector.tracking_id(result_vec); // add tracking id to the vector
 		rResult_vec = result_vec;
 
-		//TODO:get distance from cones
-
+		//TODO:finish getting distance from cones
+		vector<cone_t> cones_vec;
+		detect_cones_distance(result_vec,cones_vec, obj_names);
 		//stop timer
 		gettimeofday(&t2, NULL);
 
@@ -239,7 +246,6 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 	if (write_video == true){
 		video_out.release();
 	}
-
 
 	return SUCCESS;
 

@@ -29,7 +29,7 @@ uint8_t detect_cones(std::vector<bbox_t> &rResult_vec, uint8_t write_video);
 * @param [input] rResult_vec vector to hold all the bounding boxes
 * @param [output] rResult_vec vector to hold all the cones
  */
-uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec);
+uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec, std::vector<std::string> const obj_names);
 
 /*
 * @brief handle case of flag start/stop cones
