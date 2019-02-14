@@ -46,6 +46,7 @@ using namespace std;
 // Initialize the ZED Camera
 sl::Camera zed;
 sl::Mat cur_frame_zed(zed.getResolution(), sl::MAT_TYPE_8U_C4);
+sl::Mat cur_cloud;
 
 // Initialize fps counter
 struct timeval t1, t2;
@@ -97,6 +98,7 @@ void triangle(cv::Mat mat_img,int x, int y, int w, int h , cv::Scalar color){
 	cv::line(mat_img,cv::Point((x),(y+h)),cv::Point((x+w),(y+h)),color,1,8,0);
 }
 
+//draw the cones on the result and display it
 void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<string> obj_names, unsigned int wait_msec = 0) {
 
 	cv::Scalar color(60, 160, 260);
@@ -149,6 +151,45 @@ vector<string> objects_names_from_file(string const filename) {
 	return file_lines;
 }
 
+// get median center distance coordinates from cone in [mm]
+float4 dist_median(int x, int y, int k){
+
+	vector<float> vals_x;
+	vector<float> vals_y;
+
+	float depth_val = 0 ;
+	int cur_x = x - k;
+	int cur_y = y - k;
+
+	//iterating to find the median
+	while (cur_x != x + k){
+		if (cur_x >= 0){
+			cur_cloud.getValue(cur_x,cur_y,&depth_val);
+			vals_x.push_back(depth_val);
+		}
+		cur_y = y - k;
+		while(cur_y != y+k){
+			if (cur_y >= 0){
+				cur_cloud.getValue(cur_x,cur_y,&depth_val);
+				vals_y.push_back(depth_val);
+			}
+			cur_y++;
+		}
+		cur_x++;
+	}
+
+	sort(vals_x.begin(),vals_x.end());
+	sort(vals_y.begin(),vals_y.end());
+	float4 median;
+	median.x = vals_x[(vals_x.size()/2)];
+	median.y = vals_y[(vals_y.size()/2)];
+
+	return median;
+
+
+
+}
+
 // get distance from cones
 uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec , vector<string> const obj_names){
 	for (auto &box : rResult_vec) {
@@ -167,18 +208,31 @@ uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone
 		if (obj_typ == "blue"){
 			cur_cone.cone_type = BLUE;
 		}
+		//cone tracking id
+		cur_cone.tracking_id = box.track_id;
+
+		// Estimated cone midpoint in pixels
+		int cone_x_pix = (box.x+box.w)/2;
+		int cone_y_pix = (box.y+box.h)/2;
+
+		// get the median value for cone distance
+		float4 cone_cor = dist_median(cone_x_pix, cone_y_pix, 5);
+		cur_cone.cone_cordinates.x = cone_cor.x;
+		cur_cone.cone_cordinates.y = cone_cor.y;
+
+		//add the cone to our result vector
+		rDist_vec.push_back(cur_cone);
 
 	}
 }
 
+//TODO: add displaying cone distance to output video if required
 uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 
 	//Paths
 	string cfg_path = "yolov3-tiny-obj.cfg";
 	string weights_path = "yolov3-tiny-obj_3100.weights";
 	string names_path = "cones.names";
-
-	//string file_path = "Test3.mp4";
 
 	//Confidence threshold
 	float confThreshold = 0.4;
@@ -207,6 +261,7 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 		if (zed.grab() == SUCCESS) {
 		  // A new image is available if grab() returns SUCCESS
 		  zed.retrieveImage(cur_frame_zed,sl::VIEW_LEFT); // Retrieve the left image
+		  zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZ); //Retrieve
 		  cur_frame_cv = slMat2cvMat(cur_frame_zed);
 		}
 		else{
@@ -258,6 +313,8 @@ uint8_t init_zed_cam(){
 	sl::InitParameters init_params;
 	init_params.camera_resolution = sl::RESOLUTION_VGA;
 	init_params.camera_fps = 100;
+	init_params.depth_mode = sl::DEPTH_MODE_ULTRA; // Use ULTRA depth mode
+	init_params.coordinate_units = sl::UNIT_MILLIMETER;// Coordinates in [mm]
 
 	uint8_t err;
 	err = zed.open(init_params);
