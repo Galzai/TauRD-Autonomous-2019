@@ -99,11 +99,12 @@ void triangle(cv::Mat mat_img,int x, int y, int w, int h , cv::Scalar color){
 }
 
 //draw the cones on the result and display it
-void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<string> obj_names, unsigned int wait_msec = 0) {
+void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<cone_t> &rDist_vec , vector<string> obj_names, unsigned int wait_msec = 0) {
 
 	cv::Scalar color(60, 160, 260);
 	cv::Scalar fpscolor(215, 20, 107);
 
+	int cone_i = 0;
 	for (auto &i : result_vec) {
 
 		//basically counts cones
@@ -114,16 +115,18 @@ void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<string> obj_n
 		// Mark cone with triangle
 		triangle(mat_img,i.x,i.y,i.w,i.h,color);
 
-		//tracking id
-		if(i.track_id > 0)
-			cv::putText(mat_img, to_string(i.track_id), cv::Point2f(i.x+i.w+5, i.y + i.h/2), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, color);
+		//tracking id and distance
+		if(i.track_id >= 0)
+			cv::putText(mat_img, "id: " + to_string(i.track_id) + "x:" + to_string(rDist_vec[cone_i].cone_cordinates.x) +
+					"[m]" + "y:" + to_string(rDist_vec[cone_i].cone_cordinates.y) + "[m]"
+					, cv::Point2f(i.x+i.w+5, i.y + i.h/2), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, color);
 
 		//only print up to 2 digits for probability
 		stringstream stream;
 		stream << fixed << setprecision(2) << i.prob;
 		string probString = stream.str();
 		cv::putText(mat_img, probString, cv::Point2f(i.x+5, (i.y + 15)+i.h), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, color);
-
+		cone_i++;
 	}
 	cv::putText(mat_img, "Cones: "+to_string(cone_num), cv::Point2f(mat_img.cols-220, 22), cv::FONT_HERSHEY_PLAIN, 2, fpscolor,2);
 	cv::putText(mat_img, "FPS: "+to_string(fps), cv::Point2f(0,22), cv::FONT_HERSHEY_PLAIN , 2, fpscolor,2);
@@ -132,12 +135,15 @@ void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<string> obj_n
 }
 
 //Print the results
-void show_result(vector<bbox_t> const result_vec, vector<string> const obj_names) {
+void show_result(vector<bbox_t> const result_vec, vector<cone_t> &rDist_vec , vector<string> const obj_names) {
+	int cone_i = 0;
 	for (auto &i : result_vec) {
 		if (obj_names.size() > i.obj_id) cout << obj_names[i.obj_id] << " - ";
-		cout <<"FPS: "<<fps<< ", obj_id = " << i.obj_id<< ", tracking id = "<< i.track_id<< ",  x = " << i.x << ", y = " << i.y
+		cout <<"FPS: "<<fps<< ", obj_id = " << i.obj_id<< ", id = "<< i.track_id<< ",  x = " << i.x << ", y = " << i.y
 				<< ", w = " << i.w << ", h = " << i.h
-				<< setprecision(3) << ", prob = " << i.prob << endl;
+				<< setprecision(3) << ", prob = " << i.prob <<", dist x" << rDist_vec[cone_i].cone_cordinates.x << " [m]"
+				<<", dist y" << rDist_vec[cone_i].cone_cordinates.y << "[m]"<< endl;
+		cone_i++;
 	}
 }
 
@@ -191,7 +197,7 @@ float4 dist_median(int x, int y, int k){
 }
 
 // get distance from cones
-uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec , vector<string> const obj_names){
+void detect_cones_distance(vector<bbox_t> &rResult_vec, vector<cone_t> &rDist_vec , vector<string> const obj_names){
 	for (auto &box : rResult_vec) {
 		cone_t cur_cone;
 		// Check cone type
@@ -226,8 +232,9 @@ uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone
 	}
 }
 
-//TODO: add displaying cone distance to output video if required
-uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
+//TODO: TESTING
+//detect the cones and their distances each frame and update rDist_vec
+uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 
 	//Paths
 	string cfg_path = "yolov3-tiny-obj.cfg";
@@ -275,11 +282,9 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 		//detect objects in frames with threshold over confThreshold
 		vector<bbox_t> result_vec = detector.detect(cur_frame_cv, confThreshold);
 		result_vec = detector.tracking_id(result_vec); // add tracking id to the vector
-		rResult_vec = result_vec;
 
 		//TODO:finish getting distance from cones
-		vector<cone_t> cones_vec;
-		detect_cones_distance(result_vec,cones_vec, obj_names);
+		detect_cones_distance(result_vec,rDist_vec, obj_names);
 		//stop timer
 		gettimeofday(&t2, NULL);
 
@@ -287,12 +292,12 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 		fps =1/((t2.tv_usec - t1.tv_usec)/pow(10,6)) ;
 
 		// print results
-		show_result(result_vec, obj_names);
+		show_result(result_vec,rDist_vec, obj_names);
 
 		//record video
 		if (write_video == true){
 			//draw the cones
-			draw_cones(cur_frame_cv, result_vec, obj_names, wait_ms);
+			draw_cones(cur_frame_cv, result_vec,rDist_vec , obj_names, wait_ms);
 			//write out to file
 			video_out.write(cur_frame_cv);
 		}
@@ -307,7 +312,6 @@ uint8_t detect_cones(vector<bbox_t> &rResult_vec, bool write_video){
 }
 
 // Initialize the ZED Camera
-
 uint8_t init_zed_cam(){
 
 	sl::InitParameters init_params;

@@ -19,17 +19,10 @@ uint8_t init_vision(bool testMode);
 
 /*
 * @brief detect cone bounding boxes via darknet
-* @param [output] rResult_vec vector to hold all the bounding boxes (pixels)
+* @param [output] rResult_vec vector to hold all the bounding boxes
 * @param [input] write_video - set to 1 if you would like to record detection video
  */
-uint8_t detect_cones(std::vector<bbox_t> &rResult_vec, uint8_t write_video);
-
-/*
-* @brief detect cone bounding boxes via darknet
-* @param [input] rResult_vec vector to hold all the bounding boxes
-* @param [output] rResult_vec vector to hold all the cones
- */
-uint8_t detect_cones_distance(std::vector<bbox_t> &rResult_vec, std::vector<cone_t> &rDist_vec, std::vector<std::string> const obj_names);
+uint8_t detect_cones(std::vector<cone_t> &rDist_vec, uint8_t write_video);
 
 /*
 * @brief handle case of flag start/stop cones
