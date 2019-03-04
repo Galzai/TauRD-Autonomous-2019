@@ -381,7 +381,7 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 // Initialize the ZED Camera
 uint8_t init_zed_cam(){
 	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION_VGA;
+	init_params.camera_resolution = sl::RESOLUTION_HD720;
 	init_params.camera_fps = 100;
 	init_params.depth_mode = sl::DEPTH_MODE_ULTRA; // Use ULTRA depth mode
 	init_params.coordinate_units = sl::UNIT_MILLIMETER;// Coordinates in [mm]
