@@ -59,7 +59,7 @@ all: TauRD_Autonamous
 TauRD_Autonamous: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: NVCC Linker'
-	/usr/local/cuda-10.0/bin/nvcc --cudart static -L/usr/local/lib -L/usr/local/zed/lib/ -L/home/gal/darknet/darknet --relocatable-device-code=false -gencode arch=compute_52,code=compute_52 -gencode arch=compute_52,code=sm_52 -link -o  "TauRD_Autonamous" $(OBJS) $(USER_OBJS) $(LIBS)
+	/usr/local/cuda-10.0/bin/nvcc --cudart static -L/usr/local/lib -L/usr/local/cuda/lib64 -L/usr/local/zed/lib/ -L/home/tau-rd/"FSAE Driverless"/Darknet/darknet-master --relocatable-device-code=false -gencode arch=compute_52,code=compute_52 -gencode arch=compute_52,code=sm_52 -link -o  "TauRD_Autonamous" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
