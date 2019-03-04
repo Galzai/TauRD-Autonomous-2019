@@ -16,7 +16,20 @@
  *
  * 2019 Tel-Aviv university formula student team.
  */
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <thread>
+#include "Perception/vision.h"
 
+
+//Currently testing
 int main(void){
+	init_zed_cam();
+	std::vector<cone_t> dist_vec;
+	detect_cones(dist_vec,true);
+
 
 }

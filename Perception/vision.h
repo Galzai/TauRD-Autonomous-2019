@@ -18,11 +18,16 @@
 uint8_t init_vision(bool testMode);
 
 /*
+ * @brief initialize zed camera
+ * */
+uint8_t init_zed_cam();
+
+/*
 * @brief detect cone bounding boxes via darknet
 * @param [output] rResult_vec vector to hold all the bounding boxes
 * @param [input] write_video - set to 1 if you would like to record detection video
  */
-uint8_t detect_cones(std::vector<cone_t> &rDist_vec, uint8_t write_video);
+uint8_t detect_cones(std::vector<cone_t> &rDist_vec, bool write_video);
 
 /*
 * @brief handle case of flag start/stop cones

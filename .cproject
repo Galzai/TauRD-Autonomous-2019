@@ -162,7 +162,7 @@
 								<option id="nvcc.linker.option.paths.874729036" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/usr/local/zed/lib/"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Perception/libraries}&quot;"/>
+									<listOptionValue builtIn="false" value="/home/gal/darknet/darknet"/>
 								</option>
 								<option id="nvcc.linker.option.libs.548763973" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="sl_core"/>
@@ -242,4 +242,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.nvidia.cuda.ide.build.NVCCPerProjectProfile"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

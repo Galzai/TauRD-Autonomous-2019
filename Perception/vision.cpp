@@ -21,6 +21,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <stdio.h>
 #include <vector>
 #include <fstream>
 #include <thread>
@@ -45,7 +46,7 @@ using namespace std;
 
 // Initialize the ZED Camera
 sl::Camera zed;
-sl::Mat cur_frame_zed(zed.getResolution(), sl::MAT_TYPE_8U_C4);
+sl::Mat cur_frame_zed;
 sl::Mat cur_cloud;
 
 // Initialize fps counter
@@ -270,6 +271,7 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 		  zed.retrieveImage(cur_frame_zed,sl::VIEW_LEFT); // Retrieve the left image
 		  zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZ); //Retrieve
 		  cur_frame_cv = slMat2cvMat(cur_frame_zed);
+			cout << "Image grabbed!" << endl;
 		}
 		else{
 			cout << "Error retrieving frame" << endl;
@@ -282,6 +284,7 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 		//detect objects in frames with threshold over confThreshold
 		vector<bbox_t> result_vec = detector.detect(cur_frame_cv, confThreshold);
 		result_vec = detector.tracking_id(result_vec); // add tracking id to the vector
+		cout << "Objects detected!" << endl;
 
 		//TODO:finish getting distance from cones
 		detect_cones_distance(result_vec,rDist_vec, obj_names);
@@ -308,23 +311,22 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 	}
 
 	return SUCCESS;
-
 }
 
 // Initialize the ZED Camera
 uint8_t init_zed_cam(){
-
 	sl::InitParameters init_params;
 	init_params.camera_resolution = sl::RESOLUTION_VGA;
 	init_params.camera_fps = 100;
 	init_params.depth_mode = sl::DEPTH_MODE_ULTRA; // Use ULTRA depth mode
 	init_params.coordinate_units = sl::UNIT_MILLIMETER;// Coordinates in [mm]
-
-	uint8_t err;
+	sl::ERROR_CODE err;
 	err = zed.open(init_params);
 	if (err != SUCCESS){
+		cout <<"Cannot open ZED:" << sl::toString(err) << endl;
 		return FAILED;
-	}
 
+	}
+	sl::Mat cur_frame_zed(zed.getResolution(), sl::MAT_TYPE_8U_C4);
 	return SUCCESS;
 }

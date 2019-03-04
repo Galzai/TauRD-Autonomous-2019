@@ -12,7 +12,7 @@
  * define success and failure codes
  */
 #define FAILED -1
-#define SUCCESS 1
+#define SUCCESS 0
 
 /*
  * define cone types
