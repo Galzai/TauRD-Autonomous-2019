@@ -53,19 +53,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: TauRD_Autonamous
+all: TauRD_Autonomous
 
 # Tool invocations
-TauRD_Autonamous: $(OBJS) $(USER_OBJS)
+TauRD_Autonomous: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: NVCC Linker'
-	/usr/local/cuda-10.0/bin/nvcc --cudart static -L/usr/local/lib -L/usr/local/cuda/lib64 -L/usr/local/zed/lib/ -L/home/tau-rd/"FSAE Driverless"/Darknet/darknet-master --relocatable-device-code=false -gencode arch=compute_52,code=compute_52 -gencode arch=compute_52,code=sm_52 -link -o  "TauRD_Autonamous" $(OBJS) $(USER_OBJS) $(LIBS)
+	/usr/local/cuda-10.0/bin/nvcc --cudart static -L/usr/local/lib -L/usr/local/cuda/lib64 -L/usr/local/zed/lib/ -L/home/tau-rd/"FSAE Driverless"/Darknet/darknet-master --relocatable-device-code=false -gencode arch=compute_52,code=compute_52 -gencode arch=compute_52,code=sm_52 -link -o  "TauRD_Autonomous" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CU_DEPS)$(CPP_DEPS)$(C_DEPS) TauRD_Autonamous
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CU_DEPS)$(CPP_DEPS)$(C_DEPS) TauRD_Autonomous
 	-@echo ' '
 
 .PHONY: all clean dependents
