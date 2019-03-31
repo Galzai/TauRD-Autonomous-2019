@@ -2,7 +2,26 @@
 This is the repository for the initial version of Tel-Aviv university's formula student driverless vehicle.  
 Currently work in progress and has not been fully tested.
 
-## CURRENT FEATURES 
+## Requirements  
+-Stereolabs ZED for vision related features  
+-Advanced navigation's spatial for odometry
+
+## Prerequesites  
+Please make sure all the libraries are properly linked before building.   
+
+### yolov3-tiny  
+    Install the [CUDA toolkit](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn).  
+    Install and build [darknet(https://github.com/AlexeyAB/darknet#how-to-compile-on-linux)  
+    Make sure you have OpenCV installed and properly linked in your build environment.  
+
+    Add libdarknet.so and the cuda libraries to your library path:  
+    export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64:$LD_LIBRARY_PATH  
+    export LD_LIBRARY_PATH= "PATH-TO-YOUR-libdarknet.so"   
+
+### Zed sdk
+Install the [Stereolab's Zed sdk](https://www.stereolabs.com/developers/release/) for your platform.  
+
+## Current features 
 - Data retrieval from AirSim via TCP for alogrith testing:  
   Need to add distance from cone detection from AirSim  
 

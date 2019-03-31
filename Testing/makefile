@@ -11,6 +11,8 @@ RM := rm -rf
 -include subdir.mk
 -include SimulatorClient/subdir.mk
 -include Perception/subdir.mk
+-include Perception/libraries/gps/subdir.mk
+-include Perception/libraries/gps/rs232/subdir.mk
 
 OS_SUFFIX := $(subst Linux,linux,$(subst Darwin/x86_64,darwin,$(shell uname -s)/$(shell uname -m)))
 

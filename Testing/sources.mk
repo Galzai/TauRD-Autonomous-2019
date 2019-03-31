@@ -28,4 +28,6 @@ SUBDIRS := \
 . \
 SimulatorClient \
 Perception \
+Perception/libraries/gps \
+Perception/libraries/gps/rs232 \
 

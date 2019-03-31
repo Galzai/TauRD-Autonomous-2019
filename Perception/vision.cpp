@@ -40,7 +40,7 @@
 #include <sl/Camera.hpp>
 
 #define OPENCV  //Enable OpenCV for yolo
-#include "../Perception/libraries/yolo_v2_class.hpp" //yolo cpp wrapper
+#include "libraries/yolo/yolo_v2_class.hpp" //yolo cpp wrapper
 
 #include "vision.h"
 #include "data_logging.h"

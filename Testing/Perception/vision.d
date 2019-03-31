@@ -428,7 +428,7 @@ Perception/vision.o : ../Perception/vision.cpp \
     /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
     /usr/local/zed/include/sl_core/mapping/Mesh.hpp \
     /usr/local/zed/include/sl_zed/defines.hpp \
-    ../Perception/../Perception/libraries/yolo_v2_class.hpp \
+    ../Perception/libraries/yolo/yolo_v2_class.hpp \
     ../Perception/vision.h \
     ../Perception/data_structs.h \
     ../Perception/data_logging.h
