@@ -11,7 +11,7 @@ Please make sure all the libraries are properly linked before building.
 
 ### yolov3-tiny  
     Install the [CUDA toolkit](https://developer.nvidia.com/cuda-downloads) and [cuDNN](https://developer.nvidia.com/cudnn).  
-    Install and build [darknet(https://github.com/AlexeyAB/darknet#how-to-compile-on-linux)  
+    Install and build [darknet](https://github.com/AlexeyAB/darknet#how-to-compile-on-linux)  
     Make sure you have OpenCV installed and properly linked in your build environment.  
 
     Add libdarknet.so and the cuda libraries to your library path:  
