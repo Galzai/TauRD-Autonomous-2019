@@ -3,8 +3,8 @@ This is the repository for the initial version of Tel-Aviv university's formula 
 Currently work in progress and has not been fully tested.
 
 ## Requirements  
--Stereolabs ZED for vision related features  
--Advanced navigation's spatial for odometry
+- Stereolabs ZED for vision related features  
+- Advanced navigation's spatial for odometry
 
 ## Prerequesites  
 Please make sure all the libraries are properly linked before building.   
@@ -26,7 +26,7 @@ Install the [Stereolab's Zed sdk](https://www.stereolabs.com/developers/release/
   Need to add distance from cone detection from AirSim  
 
 - Cone detection:  
-  Tested and working , neural detection net is currently not fully traind.  
+  Tested and working. cone detection net is currently not fully trained.  
 
 - Cone distance estimation:   
   Implemented distance detection using zed camera (Tested and working, accuracy not yet tested) 
