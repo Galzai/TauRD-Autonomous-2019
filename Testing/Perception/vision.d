@@ -430,4 +430,5 @@ Perception/vision.o : ../Perception/vision.cpp \
     /usr/local/zed/include/sl_zed/defines.hpp \
     ../Perception/../Perception/libraries/yolo_v2_class.hpp \
     ../Perception/vision.h \
-    ../Perception/data_structs.h
+    ../Perception/data_structs.h \
+    ../Perception/data_logging.h

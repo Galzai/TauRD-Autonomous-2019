@@ -8,6 +8,9 @@
 #ifndef DATA_STRUCTS_H_
 #define DATA_STRUCTS_H_
 
+#include <stdint.h>
+#include <vector>
+#include <string>
 /*
  * define success and failure codes
  */

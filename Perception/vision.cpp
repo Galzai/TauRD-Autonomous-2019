@@ -43,6 +43,7 @@
 #include "../Perception/libraries/yolo_v2_class.hpp" //yolo cpp wrapper
 
 #include "vision.h"
+#include "data_logging.h"
 
 using namespace std;
 //using namespace cv;
@@ -56,6 +57,9 @@ sl::Mat cur_cloud;
 struct timeval t1, t2;
 int fps = 0;
 unsigned int cone_num = 0;
+
+//create a log file to hold cone dist
+log_file cone_log_file(true);
 
 cv::VideoWriter video_out;
 
@@ -97,23 +101,36 @@ cv::Mat slMat2cvMat(sl::Mat &input) {
 //draw an isosceles triangle on a using  x,y,w,h values
 void triangle(cv::Mat mat_img,int x, int y, int w, int h , cv::Scalar color){
 
-	cv::line(mat_img,cv::Point((x+w/2),(y)),cv::Point((x),(y+h)),color,1,8,0);
-	cv::line(mat_img,cv::Point((x+w/2),(y)),cv::Point((x+w),(y+h)),color,1,8,0);
-	cv::line(mat_img,cv::Point((x),(y+h)),cv::Point((x+w),(y+h)),color,1,8,0);
+	cv::line(mat_img,cv::Point((x+w/2),(y)),cv::Point((x),(y+h)),color,3,8,0);
+	cv::line(mat_img,cv::Point((x+w/2),(y)),cv::Point((x+w),(y+h)),color,3,8,0);
+	cv::line(mat_img,cv::Point((x),(y+h)),cv::Point((x+w),(y+h)),color,3,8,0);
 }
 
 //draw the cones on the result and display it
 void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<cone_t> &rDist_vec , vector<string> obj_names, unsigned int wait_msec = 0) {
 
-	cv::Scalar color(60, 160, 260);
+	cv::Scalar color;
 	cv::Scalar fpscolor(215, 20, 107);
 
 	int cone_i = 0;
 	for (auto &i : result_vec) {
 
+		// check cone color
+		if(rDist_vec[cone_i].cone_type == ORANGE_S){
+			color = cv::Scalar(102, 178, 255);
+		}
+		else if(rDist_vec[cone_i].cone_type == ORANGE_L){
+			color =  cv::Scalar(0, 128, 255);
+		}
+		else if(rDist_vec[cone_i].cone_type == YELLOW){
+			color = cv::Scalar(0, 204, 204);
+		}
+		else if(rDist_vec[cone_i].cone_type == BLUE){
+			color = cv::Scalar(255, 0, 0);
+		}
 		//basically counts cones
-		if(i.track_id>cone_num){
-			cone_num= i.track_id;
+		if(i.track_id > cone_num){
+			cone_num = i.track_id;
 		}
 
 		// Mark cone with triangle
@@ -121,20 +138,21 @@ void draw_cones(cv::Mat mat_img, vector<bbox_t> result_vec, vector<cone_t> &rDis
 
 		//tracking id and distance
 		if(i.track_id >= 0)
-			cv::putText(mat_img, "id: " + to_string(i.track_id) + " |x:" + to_string(rDist_vec[cone_i].cone_cordinates.x) +
-					"[mm]" + " |y:" +"\n" + to_string(rDist_vec[cone_i].cone_cordinates.y) + "[mm]"
-					, cv::Point2f(i.x+i.w+5, i.y + i.h/2), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, color);
+			cv::putText(mat_img, "x: " + to_string(int(rDist_vec[cone_i].cone_cordinates.x)) +
+					"[mm]"
+					, cv::Point2f(i.x+i.w+5, i.y + i.h), cv::FONT_HERSHEY_DUPLEX, 0.43, color);
+		cv::putText(mat_img, "y: "  + to_string(int(rDist_vec[cone_i].cone_cordinates.y)) + "[mm]"
+				, cv::Point2f(i.x+i.w+5, i.y + i.h-18), cv::FONT_HERSHEY_DUPLEX, 0.43, color);
 
 		//only print up to 2 digits for probability
 		stringstream stream;
 		stream << fixed << setprecision(2) << i.prob;
 		string probString = stream.str();
-		cv::putText(mat_img, probString, cv::Point2f(i.x+5, (i.y + 15)+i.h), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.7, color);
 		cone_i++;
 	}
-	cv::putText(mat_img, "Cones: "+to_string(cone_num), cv::Point2f(mat_img.cols-220, 22), cv::FONT_HERSHEY_PLAIN, 2, fpscolor,2);
-	cv::putText(mat_img, "FPS: "+to_string(fps), cv::Point2f(0,22), cv::FONT_HERSHEY_PLAIN , 2, fpscolor,2);
-	cv::imshow("window name", mat_img);
+	cv::putText(mat_img, "Cones: "+to_string(cone_num), cv::Point2f(mat_img.cols-220, 22), cv::FONT_HERSHEY_DUPLEX, 1, fpscolor,2);
+	cv::putText(mat_img, "FPS: "+to_string(fps), cv::Point2f(0,22), cv::FONT_HERSHEY_DUPLEX , 1, fpscolor,2);
+	cv::imshow("Detector View", mat_img);
 	cv::waitKey(wait_msec);
 }
 
@@ -146,7 +164,7 @@ void show_result(vector<bbox_t> const result_vec, vector<cone_t> &rDist_vec , ve
 		cout <<"FPS: "<<fps<< ", obj_id = " << i.obj_id<< ", id = "<< i.track_id<< ",  x = " << i.x << ", y = " << i.y
 				<< ", w = " << i.w << ", h = " << i.h
 				<< setprecision(3) << ", prob = " << i.prob <<", dist x: " << rDist_vec[cone_i].cone_cordinates.x << " [mm]"
-				<<", dist y: " << rDist_vec[cone_i].cone_cordinates.y << "[mm]"<< endl;
+				<<", dist y: " << rDist_vec[cone_i].cone_cordinates.y << " [mm]"<< endl;
 		cone_i++;
 	}
 }
@@ -178,23 +196,23 @@ float4 dist_median(int x, int y, int k){
 	//iterating to find the median
 	while (cur_x != x + k){
 		if (cur_x >= 0){
-			cur_cloud.getValue(cur_x,cur_y,&point3D);
-			if(std::isfinite(point3D.z)){
-				vals_x.push_back(point3D.z);
-			}
-		}
-		cur_y = y - k;
+			while(cur_y != y+k){
+				if (cur_y >= 0){
+					cur_cloud.getValue(cur_x,cur_y,&point3D);
+					if(std::isfinite(point3D.x)){
+						vals_x.push_back(point3D.x);
 
-		while(cur_y != y+k){
-			if (cur_y >= 0){
-				cur_cloud.getValue(cur_x,cur_y,&point3D);
-				if(std::isfinite(point3D.x)){
-					vals_y.push_back(point3D.x);
-				};
+					}
+					if(std::isfinite(point3D.z)){
+						vals_y.push_back(point3D.z);
+					}
+				}
+				cur_y++;
 			}
-			cur_y++;
+			cur_y = y - k;
+			cur_x++;
 		}
-		cur_x++;
+
 	}
 
 	float4 median;
@@ -220,29 +238,18 @@ void detect_cones_distance(vector<bbox_t> &rResult_vec, vector<cone_t> &rDist_ve
 	rDist_vec.clear();
 	for (auto &box : rResult_vec) {
 		cone_t cur_cone;
-		// Check cone type
-		string obj_typ = obj_names[box.obj_id];
-		if (obj_typ == "orange_l"){
-			cur_cone.cone_type = ORANGE_L;
-		}
-		if (obj_typ == "orange_s"){
-			cur_cone.cone_type = ORANGE_S;
-		}
-		if (obj_typ == "yellow"){
-			cur_cone.cone_type = YELLOW;
-		}
-		if (obj_typ == "blue"){
-			cur_cone.cone_type = BLUE;
-		}
+
+		// set cone type
+		cur_cone.cone_type = box.obj_id;
 		//cone tracking id
 		cur_cone.tracking_id = box.track_id;
 
 		// Estimated cone midpoint in pixels
-		int cone_x_pix = (box.x+box.w)/2;
-		int cone_y_pix = (box.y+box.h)/2;
+		int cone_x_pix = box.x + (box.w)/2;
+		int cone_y_pix = box.y + 2*(box.h)/3; //The thickest part of the cone is at the base
 
 		// get the median value for cone distance
-		float4 cone_cor = dist_median(cone_x_pix, cone_y_pix, 5);
+		float4 cone_cor = dist_median(cone_x_pix, cone_y_pix, 10);
 		cur_cone.cone_cordinates.x = cone_cor.x;
 		cur_cone.cone_cordinates.y = cone_cor.y;
 
@@ -260,16 +267,16 @@ std::atomic<bool> exit_flag, new_data;
 vector<bbox_t> result_vec;
 
 //Paths
-string cfg_path = "yolov3-tiny-obj.cfg";
-string weights_path = "yolov3-tiny-obj_3100.weights";
-string names_path = "cones.names";
+string cfg_path = "yolov3-tiny-cones.cfg";
+string weights_path = "yolov3-tiny-cones_last.weights";
+string names_path = "obj.names";
 
 
 void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
-
+	// prevent yolo thread from running
 	data_lock.lock();
 	//Confidence threshold
-	float confThreshold = 0.4;
+	float confThreshold = 0.9;
 
 	//Initialize the detector
 	auto obj_names = objects_names_from_file(names_path);
@@ -279,24 +286,23 @@ void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
 
 	//Create a capture session
 	detector.nms = 0.02;
-	 data_lock.unlock();
+	data_lock.unlock();
 
 	//detect objects in frames with threshold over confThreshold
 	while (!exit_flag) {
 		if (new_data) {
 			data_lock.lock();
 			det_image = detector.mat_to_image_resize(cur_frame_cv);
-			result_vec = detector.detect_resized(*det_image, frame_size.width, frame_size.height, confThreshold, false);
-			//vector<bbox_t> result_vec = detector.detect(cur_frame_cv, confThreshold);
-			result_vec = detector.tracking_id(result_vec); // add tracking id to the vector
-			//cout << "Objects detected!" << endl;
 
+			result_vec = detector.detect_resized(*det_image, frame_size.width, frame_size.height, confThreshold, false);
+			result_vec = detector.tracking_id(result_vec); // add tracking id to the vector
 			detect_cones_distance(result_vec,rDist_vec, obj_names);
+			cone_log_file.write_rows_to_file(rDist_vec);
 			//stop timer
 			gettimeofday(&t2, NULL);
 			//calculate fps
 			fps =1/((t2.tv_usec - t1.tv_usec)/pow(10,6)) ;
-			// print results
+			// print results{
 			show_result(result_vec,rDist_vec, obj_names);
 			data_lock.unlock();
 			new_data = false;
@@ -310,20 +316,25 @@ void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
 uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 
 	auto obj_names = objects_names_from_file(names_path);
-	int wait_ms = 15; //How long to wait before previewing each frame in [ms]
-	//Setup writing video if enabled
-	if (write_video == true){
-		//Open the output video
-		string output_file_path = "yolo-zed.avi";
-		cv::Size const frame_size = cur_frame_cv.size();
-		//video_out.open(output_file_path, cv::VideoWriter::fourcc('M','J','P','G'), 28, frame_size);
-	}
+	int wait_ms = 20; //How long to wait before previewing each frame in [ms]
+
 
 	if (zed.grab() == SUCCESS) {
 		// A new image is available if grab() returns SUCCESS
 		zed.retrieveImage(cur_frame_zed,sl::VIEW_LEFT); // Retrieve the left image
 		zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZRGBA,sl:: MEM_CPU); //Retrieve
 		slMat2cvMat(cur_frame_zed).copyTo(cur_frame_cv);
+		std::string col_names = "Type, ID, x [mm] , y [mm]";
+		cone_log_file = log_file("cone_log", col_names);
+
+		//Setup writing video if enabled
+		if (write_video == true){
+			//Open the output video
+			string output_file_path = "yolo-zed.avi";
+			cv::Size const frame_size = cur_frame_cv.size();
+			video_out.open(output_file_path, cv::VideoWriter::fourcc('M','J','P','G'), 28, frame_size);
+		}
+
 		exit_flag = false;
 		new_data = false;
 		//cout << "Image grabbed!" << endl;
@@ -336,20 +347,16 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 
 	//Start processing the frames
 	while(!exit_flag) {
-
+		//start timer
+		gettimeofday(&t1, NULL);
 		if (zed.grab() == SUCCESS) {
-			//start timer
-			gettimeofday(&t1, NULL);
 			// A new image is available if grab() returns SUCCESS
 			zed.retrieveImage(cur_frame_zed,sl::VIEW_LEFT); // Retrieve the left image
 			data_lock.lock();
-
 			cur_frame_cv = slMat2cvMat(cur_frame_zed);
+			zed.retrieveMeasure(cur_cloud, sl:: MEASURE_XYZRGBA,sl:: MEM_CPU); //Retrieve distance
 			data_lock.unlock();
 			new_data = true;
-			data_lock.lock();
-			zed.retrieveMeasure(cur_cloud, sl:: MEASURE_XYZRGBA,sl:: MEM_CPU); //Retrieve
-			//data_lock.lock();
 
 			//record video
 			if (write_video == true){
@@ -381,8 +388,8 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 // Initialize the ZED Camera
 uint8_t init_zed_cam(){
 	sl::InitParameters init_params;
-	init_params.camera_resolution = sl::RESOLUTION_HD720;
-	init_params.camera_fps = 100;
+	init_params.camera_resolution = sl::RESOLUTION_VGA;
+	init_params.camera_fps = 0; // highest possible framerate
 	init_params.depth_mode = sl::DEPTH_MODE_ULTRA; // Use ULTRA depth mode
 	init_params.coordinate_units = sl::UNIT_MILLIMETER;// Coordinates in [mm]
 	sl::ERROR_CODE err;
