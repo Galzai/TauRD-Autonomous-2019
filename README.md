@@ -34,10 +34,13 @@ Install the [Stereolab's Zed sdk](https://www.stereolabs.com/developers/release/
   Added draw_cones (python script  to display cones relative to car)
   Need to add distance detection from AirSim.  
 
+- Advanced Navigation Spatial GPS and IMU data:   
+  Implemented obtaining vehicle state from Advanced Navigation Spatial (coordinates, accelrations, velocities etc)
+  Need to add RTCM packets from base station (including a seperate repo for base station) and wheel RPM sensor.
+
 # TO-DO   
 - Better documentation
-- GPS Handing (In progress)
-- IMU Handling (In progress)
+- GPS rtk Handing (In progress)
 - Data Filtering (In progress)
 - Mapping(In progress)
 - Controlller communication
