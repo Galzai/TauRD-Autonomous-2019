@@ -47,29 +47,28 @@ struct cone_t{
 
 
 /*
- * @brief data type for holding imu data
+ * @brief data type for holding sensor data
  */
-struct imu_data_t{
+struct vehicle_state_t{
 
 	float angular_acc_x; //x angular acceleration [radian/s^2]
 	float angular_acc_y; //y angular acceleration [radian/s^2]
 	float angular_acc_z; //z angular acceleration [radian/s^2]
-	float heading; //heading angle [radian]
+
+	float angular_vel_x; //x angular acceleration [radian/s^2]
+	float angular_vel_y; //y angular acceleration [radian/s^2]
+	float angular_vel_z; //z angular acceleration [radian/s^2]
+
+	float linear_velocity_x; // vehicle velocity in [m/s]
+	float linear_velocity_y; // vehicle velocity in [m/s]
+
 	float linear_acc_x;  //x linear acceleration [meter/s^2]
 	float linear_acc_y; //y linear acceleration [meter/s^2]
 
-};
-
-
-/*
- * @brief data type for holding sensor data
- */
-struct sensor_data_t{
-
 	coordinates_t coordinates; //coordinates retrieved from gps
-	imu_data_t kinematic_data;
-	float lin_velocity; // vehicle velocity in [m/s]
-	//float steering_angle; //[radian]
+
+	float heading; //heading angle [radian]
+
 };
 
 /*

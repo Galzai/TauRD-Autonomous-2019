@@ -1,10 +1,10 @@
 # Tel-Aviv university's formula student driverless 
 This is the repository for the initial version of Tel-Aviv university's formula student driverless vehicle.  
-Currently work in progress and has not been fully tested.
+Currently work in progress and has not been fully tested.  
 
 ## Requirements  
 - Stereolabs ZED for vision related features  
-- Advanced navigation's spatial for odometry
+- Advanced navigation's spatial for odometry  
 
 ## Prerequesites  
 Please make sure all the libraries are properly linked before building.   

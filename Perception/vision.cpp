@@ -267,8 +267,8 @@ std::atomic<bool> exit_flag, new_data;
 vector<bbox_t> result_vec;
 
 //Paths
-string cfg_path = "yolov3-tiny-cones.cfg";
-string weights_path = "yolov3-tiny-cones_last.weights";
+string cfg_path = "yolov3-tiny_3l-cones.cfg";
+string weights_path = "yolov3-tiny_3l-cones_last.weights";
 string names_path = "obj.names";
 
 
@@ -276,7 +276,7 @@ void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
 	// prevent yolo thread from running
 	data_lock.lock();
 	//Confidence threshold
-	float confThreshold = 0.9;
+	float confThreshold = 0.6;
 
 	//Initialize the detector
 	auto obj_names = objects_names_from_file(names_path);
@@ -380,7 +380,7 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 		video_out.release();
 	}
 
-	//detect_thread.join();
+	detect_thread.join();
 	zed.close();
 	return SUCCESS;
 }

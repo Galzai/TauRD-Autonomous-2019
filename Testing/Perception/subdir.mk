@@ -5,14 +5,17 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../Perception/data_logging.cpp \
+../Perception/gps_funcs.cpp \
 ../Perception/vision.cpp 
 
 OBJS += \
 ./Perception/data_logging.o \
+./Perception/gps_funcs.o \
 ./Perception/vision.o 
 
 CPP_DEPS += \
 ./Perception/data_logging.d \
+./Perception/gps_funcs.d \
 ./Perception/vision.d 
 
 

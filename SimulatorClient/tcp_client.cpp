@@ -251,12 +251,12 @@ cv::Mat sim_capture_image(bool printData = false){
 }
 
 // capture images from the simulator
-std::vector <sensor_data_t> sim_capture_sensor_data(bool printData = false){
+std::vector <vehicle_state_t> sim_capture_sensor_data(bool printData = false){
 
-	sensor_data_t sensorData;
-	sensor_data_t realData;
+	vehicle_state_t sensorData;
+	vehicle_state_t realData;
 
-	vector<sensor_data_t> resData = {};
+	vector<vehicle_state_t> resData = {};
 	string buf = "sensor";
 	int sendRes = send(data_sock, buf.c_str(), buf.size() +1 , 0);
 
@@ -318,29 +318,29 @@ std::vector <sensor_data_t> sim_capture_sensor_data(bool printData = false){
 			vector <string> im_data = parse_buf(data_buf_str, ",");
 			sensorData.coordinates.x = stof(im_data[0]);
 			sensorData.coordinates.y = stof(im_data[1]);
-			sensorData.kinematic_data.heading = stof(im_data[2]);
-			sensorData.kinematic_data.angular_acc_x = stof(im_data[3]);
-			sensorData.kinematic_data.angular_acc_y  = stof(im_data[4]);
-			sensorData.kinematic_data.angular_acc_z = stof(im_data[5]);
-			sensorData.kinematic_data.linear_acc_x = stof(im_data[6]);
-			sensorData.kinematic_data.linear_acc_x = stof(im_data[7]);
-			sensorData.lin_velocity = stof(im_data[8]);
+			sensorData.heading = stof(im_data[2]);
+			sensorData.angular_acc_x = stof(im_data[3]);
+			sensorData.angular_acc_y  = stof(im_data[4]);
+			sensorData.angular_acc_z = stof(im_data[5]);
+			sensorData.linear_acc_x = stof(im_data[6]);
+			sensorData.linear_acc_x = stof(im_data[7]);
+			sensorData.linear_velocity_x = stof(im_data[8]);
 
 			realData.coordinates.x = stof(im_data[9]);
 			realData.coordinates.y = stof(im_data[10]);
-			realData.kinematic_data.angular_acc_x = stof(im_data[11]);
-			realData.kinematic_data.heading = stof(im_data[12]);
-			realData.kinematic_data.angular_acc_y  = stof(im_data[13]);
-			realData.kinematic_data.angular_acc_z = stof(im_data[14]);
-			realData.kinematic_data.linear_acc_x = stof(im_data[15]);
-			realData.kinematic_data.linear_acc_x = stof(im_data[16]);
-			realData.lin_velocity = stof(im_data[17]);
+			realData.angular_acc_x = stof(im_data[11]);
+			realData.heading = stof(im_data[12]);
+			realData.angular_acc_y  = stof(im_data[13]);
+			realData.angular_acc_z = stof(im_data[14]);
+			realData.linear_acc_x = stof(im_data[15]);
+			realData.linear_acc_x = stof(im_data[16]);
+			realData.linear_velocity_x = stof(im_data[17]);
 
 			if(printData){
-				cout  << " GPS:[" << sensorData.coordinates.x << ", "<< sensorData.coordinates.y << "][m]" <<" |Heading:"<< sensorData.kinematic_data.heading<<" [rad]"
-					"| Ang acc:["<< sensorData.kinematic_data.angular_acc_x <<", "<< sensorData.kinematic_data.angular_acc_y <<
-				", "<< sensorData.kinematic_data.angular_acc_z << "][rad/s^2] " << "| Lin acc:[" << sensorData.kinematic_data.linear_acc_x << ", "<<
-				sensorData.kinematic_data.linear_acc_y <<"][m/s^2]" << "| Velocity : "<< sensorData.lin_velocity<< "[m/s]" << endl;
+				cout  << " GPS:[" << sensorData.coordinates.x << ", "<< sensorData.coordinates.y << "][m]" <<" |Heading:"<< sensorData.heading<<" [rad]"
+					"| Ang acc:["<< sensorData.angular_acc_x <<", "<< sensorData.angular_acc_y <<
+				", "<< sensorData.angular_acc_z << "][rad/s^2] " << "| Lin acc:[" << sensorData.linear_acc_x << ", "<<
+				sensorData.linear_acc_y <<"][m/s^2]" << "| Velocity : "<< sensorData.linear_velocity_x<< "[m/s]" << endl;
 			}
 			resData.push_back(sensorData);
 			resData.push_back(realData);
