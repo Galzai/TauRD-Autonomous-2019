@@ -55,9 +55,9 @@ struct vehicle_state_t{
 	float angular_acc_y; //y angular acceleration [radian/s^2]
 	float angular_acc_z; //z angular acceleration [radian/s^2]
 
-	float angular_vel_x; //x angular acceleration [radian/s^2]
-	float angular_vel_y; //y angular acceleration [radian/s^2]
-	float angular_vel_z; //z angular acceleration [radian/s^2]
+	float angular_vel_x; //x angular velocity [radian/s]
+	float angular_vel_y; //y angular velocity [radian/s]
+	float angular_vel_z; //z angular velocity [radian/s]
 
 	float linear_velocity_x; // vehicle velocity in [m/s]
 	float linear_velocity_y; // vehicle velocity in [m/s]
@@ -68,7 +68,6 @@ struct vehicle_state_t{
 	coordinates_t coordinates; //coordinates retrieved from gps
 
 	float heading; //heading angle [radian]
-
 };
 
 /*

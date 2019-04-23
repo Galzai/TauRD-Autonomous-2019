@@ -11,7 +11,7 @@
 #include "data_structs.h"
 
 #define RADIANS_TO_DEGREES (180.0/M_PI)
-#define GPS_PORT "COM3"
+#define GPS_PORT "/dev/ttyUSB0"
 #define BAUD_RATE 115200
 #define DECODE_SUCCES 0
 #define DECODE_FAILURE 1
@@ -26,5 +26,9 @@ int run_gps_loop();
  * @NOTE: GPS loops must be running in order to call function!
  */
 vehicle_state_t get_vehicle_state();
+
+
+//flag for indicating GPS fix (1 for not fixed, 0 for fixed)
+int gps_fix();
 
 #endif /* GPS_FUNCS_H_ */

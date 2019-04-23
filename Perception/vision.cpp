@@ -314,7 +314,6 @@ void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
 //TODO: TESTING
 //detect the cones and their distances each frame and update rDist_vec
 uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
-
 	auto obj_names = objects_names_from_file(names_path);
 	int wait_ms = 20; //How long to wait before previewing each frame in [ms]
 

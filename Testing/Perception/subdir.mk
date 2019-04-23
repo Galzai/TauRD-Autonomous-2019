@@ -6,16 +6,22 @@
 CPP_SRCS += \
 ../Perception/data_logging.cpp \
 ../Perception/gps_funcs.cpp \
+../Perception/mapping.cpp \
+../Perception/utils.cpp \
 ../Perception/vision.cpp 
 
 OBJS += \
 ./Perception/data_logging.o \
 ./Perception/gps_funcs.o \
+./Perception/mapping.o \
+./Perception/utils.o \
 ./Perception/vision.o 
 
 CPP_DEPS += \
 ./Perception/data_logging.d \
 ./Perception/gps_funcs.d \
+./Perception/mapping.d \
+./Perception/utils.d \
 ./Perception/vision.d 
 
 

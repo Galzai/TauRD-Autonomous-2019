@@ -22,14 +22,14 @@
 #include <vector>
 #include <fstream>
 #include <thread>
-#include "Perception/vision.h"
+#include "Perception/mapping.h"
 
 
 //Currently testing
 int main(void){
-	init_zed_cam();
-	std::vector<cone_t> dist_vec;
-	detect_cones(dist_vec,true);
+	std::thread mapping_thread(init_mapping);
+	init_zero_point();
+	mapping_thread.join();
 
 
 }
