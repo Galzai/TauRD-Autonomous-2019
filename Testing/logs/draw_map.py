@@ -85,8 +85,8 @@ def animate(i):
 	    ax1.clear()
 	    ###plot the blue conos###
 	    plt.xlim(-5000,5000)
-	    plt.ylim(0,8000)
-	    plt.title('Cones detection in the last frame')
+	    plt.ylim(-5000,5000)
+	    plt.title('Current Map')
 	    plt.xlabel('X[mm]')
 	    plt.ylabel('Y[mm]')
 	    ax1.plot(x_R_ar,y_R_ar,'bo')
@@ -100,7 +100,7 @@ def animate(i):
 ###LIVE animation###
     ###open the newest file###
 dir_path = os.path.dirname(os.path.realpath(__file__))
-newest= max(glob.glob(dir_path+'/cone*.csv'), key=os.path.getctime)
+newest= max(glob.glob(dir_path+'/map*.csv'), key=os.path.getctime)
 pullFile = open(newest,"r")
 ani = animation.FuncAnimation(fig, animate, interval=1)
 

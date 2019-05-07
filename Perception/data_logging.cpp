@@ -87,7 +87,7 @@ log_file::log_file(bool empty){
 //TODO: create overloaded functions for different data types for logging
 
 void log_file::write_rows_to_file(std::vector<cone_t> &rDist_vec){
-	logfile.open(new_filename);
+	logfile.open(new_filename,std::ios::app);
 	struct timeval timestamp;
 	gettimeofday(&timestamp, NULL);
 	if(!rDist_vec.empty()){
@@ -99,3 +99,19 @@ void log_file::write_rows_to_file(std::vector<cone_t> &rDist_vec){
 	}
 	logfile.close();
 }
+
+void log_file::write_rows_to_file(map_t &cone_map){
+
+	logfile.open(new_filename,std::ios::app);
+	struct timeval timestamp;
+	gettimeofday(&timestamp, NULL);
+	if(!cone_map.empty()){
+		logfile << timestamp.tv_usec << " [ms] ," << "\n";
+		for (auto &res : cone_map) {
+			logfile << std::to_string(res.cone_type) << "," << std::to_string(res.tracking_id) << "," <<
+					res.abs_cone_cordinates.easting << "," << res.abs_cone_cordinates.northing << "," << "\n";
+		}
+	}
+	logfile.close();
+}
+

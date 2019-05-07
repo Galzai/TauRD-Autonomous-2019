@@ -39,6 +39,7 @@ public:
 
 	//for distance vector data
 	void write_rows_to_file(std::vector<cone_t> &rDist_vec);
+	void write_rows_to_file(map_t &cone_map);
 
 };
 

@@ -29,7 +29,7 @@ uint8_t init_mapping();
  * @return SUCCESS if mapping started correctly
  *
  */
-//uint8_t start_track_mappping(map_t *pGlobal_map);
+void start_track_mappping(void);
 
 /*
  * @brief stop mapping the track

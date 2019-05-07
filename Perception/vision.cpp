@@ -265,14 +265,28 @@ cv::Mat cur_frame_cv;
 std::vector<bbox_t> result_vect;
 std::atomic<bool> exit_flag, new_data;
 vector<bbox_t> result_vec;
-
+vector<cone_t> rDist_vec;
+vector<cone_t> finalDist;
+uint8_t visionFlag = 0;
 //Paths
 string cfg_path = "yolov3-tiny_3l-cones.cfg";
 string weights_path = "yolov3-tiny_3l-cones_last.weights";
 string names_path = "obj.names";
 
+//return the current dist vec
+std::atomic<bool> getFlag;
 
-void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
+std::vector<cone_t> get_dist_vec(void){
+	if(visionFlag == 0){
+		cout <<"Detector thread not Initialized!" <<endl;
+	}
+	while(getFlag == false){
+	}
+	return(finalDist);
+}
+
+void detectorThread(bool write_video) {
+	visionFlag = 1;
 	// prevent yolo thread from running
 	data_lock.lock();
 	//Confidence threshold
@@ -303,7 +317,10 @@ void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
 			//calculate fps
 			fps =1/((t2.tv_usec - t1.tv_usec)/pow(10,6)) ;
 			// print results{
-			show_result(result_vec,rDist_vec, obj_names);
+			//show_result(result_vec,rDist_vec, obj_names);
+			getFlag = false;
+			finalDist = rDist_vec;
+			getFlag = true;
 			data_lock.unlock();
 			new_data = false;
 		} else sl::sleep_ms(1);
@@ -313,12 +330,13 @@ void detectorThread(vector<cone_t> &rDist_vec, bool write_video) {
 
 //TODO: TESTING
 //detect the cones and their distances each frame and update rDist_vec
-uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
+uint8_t detect_cones(bool write_video){
 	auto obj_names = objects_names_from_file(names_path);
 	int wait_ms = 20; //How long to wait before previewing each frame in [ms]
 
+	while(zed.grab() != SUCCESS){
+	}
 
-	if (zed.grab() == SUCCESS) {
 		// A new image is available if grab() returns SUCCESS
 		zed.retrieveImage(cur_frame_zed,sl::VIEW_LEFT); // Retrieve the left image
 		zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZRGBA,sl:: MEM_CPU); //Retrieve
@@ -338,17 +356,19 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 		new_data = false;
 		//cout << "Image grabbed!" << endl;
 
-	}
-	else{
-		cout << "Error retrieving frame" << endl;
-	}
-	std::thread detect_thread(detectorThread,std::ref(rDist_vec), write_video);
+
+
+
+
+	std::thread detect_thread(detectorThread, write_video);
 
 	//Start processing the frames
 	while(!exit_flag) {
 		//start timer
 		gettimeofday(&t1, NULL);
-		if (zed.grab() == SUCCESS) {
+		while(zed.grab() != SUCCESS) {
+		}
+
 			// A new image is available if grab() returns SUCCESS
 			zed.retrieveImage(cur_frame_zed,sl::VIEW_LEFT); // Retrieve the left image
 			data_lock.lock();
@@ -366,11 +386,7 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 			}
 			//cout << "Image grabbed!" << endl;
 
-		}
-		else{
-			cout << "Error retrieving frame" << endl;
-			break;
-		}
+
 
 		data_lock.unlock();
 		new_data = true;
@@ -386,12 +402,13 @@ uint8_t detect_cones(vector<cone_t> &rDist_vec, bool write_video){
 
 // Initialize the ZED Camera
 uint8_t init_zed_cam(){
+	sl::ERROR_CODE err;
 	sl::InitParameters init_params;
 	init_params.camera_resolution = sl::RESOLUTION_VGA;
 	init_params.camera_fps = 0; // highest possible framerate
 	init_params.depth_mode = sl::DEPTH_MODE_ULTRA; // Use ULTRA depth mode
 	init_params.coordinate_units = sl::UNIT_MILLIMETER;// Coordinates in [mm]
-	sl::ERROR_CODE err;
+
 	err = zed.open(init_params);
 	if (err != SUCCESS){
 		cout <<"Cannot open ZED:" << sl::toString(err) << endl;

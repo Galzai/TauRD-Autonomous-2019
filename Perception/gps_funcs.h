@@ -16,6 +16,7 @@
 #define DECODE_SUCCES 0
 #define DECODE_FAILURE 1
 
+
 /*
  * @start the gps data gathering loop
  */

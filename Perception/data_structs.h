@@ -34,13 +34,26 @@ struct coordinates_t{
 	float y; // y coordinate [mm]
 
 };
+struct abs_coordinates_t{
 
+	float northing; //  northing [mm]
+	float easting; //  easting [mm]
+
+};
 /*
  * @brief data type for holding cone information
  */
 struct cone_t{
 
 	uint8_t cone_type; /// cone type
+	coordinates_t cone_cordinates; // cone x,y coordinates [mm]
+	int tracking_id;  // cone tracking id
+};
+
+struct abs_cone_t{
+
+	uint8_t cone_type; /// cone type
+	abs_coordinates_t abs_cone_cordinates; // cone   latitude and  longitude coordinates [deg]
 	coordinates_t cone_cordinates; // cone x,y coordinates [mm]
 	int tracking_id;  // cone tracking id
 };
@@ -73,7 +86,7 @@ struct vehicle_state_t{
 /*
  * @brief data type for cone mapping
  */
-typedef std::vector <cone_t> map_t;
+typedef std::vector <abs_cone_t> map_t;
 
 
 #endif /* DATA_STRUCTS_H_ */

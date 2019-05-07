@@ -28,7 +28,7 @@
 //Currently testing
 int main(void){
 	std::thread mapping_thread(init_mapping);
-	init_zero_point();
+//	init_zero_point();
 	mapping_thread.join();
 
 

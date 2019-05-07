@@ -28,7 +28,7 @@
  *
  * Modified By Gal Zaidenstein, Tuval Jacob and Noam Dahan 2019 Tel-Aviv university.
  */
-
+#include <atomic>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
@@ -50,23 +50,25 @@
 using namespace std;
 
 int No_fix = 1;
-
-bool loop_flag = false; // flag to indicate gps loops is running
 vehicle_state_t cur_vehicle_state; //hold kinematic data
-
-
+bool gps_loop_flag = false;
+std::atomic<bool> getFlag_gps;
 //Indicate if gps is fixed
 
 int gps_fix(){
 	return No_fix;
 }
 //get complete vehicle state packet
+
 vehicle_state_t get_vehicle_state(){
-	if(!loop_flag){
+	if(!gps_loop_flag){
 		std::cout << "Warning: Loop not initialized!" << std::endl;
 	}
+	while(getFlag_gps == false){
 
+	}
 	return cur_vehicle_state;
+
 }
 
 //send packet to gps
@@ -123,6 +125,16 @@ int get_ang_accl_state_packet(an_packet_t *an_packet, angular_acceleration_packe
 		return DECODE_FAILURE;
 }
 
+//get angular acceleration packet from gps
+int get_utm_pos_state_packet(an_packet_t *an_packet, utm_position_packet_t *utm_position_packet)
+{
+
+	if (decode_utm_position_packet(utm_position_packet, an_packet) == DECODE_SUCCES)
+		return DECODE_SUCCES;
+	else
+		return DECODE_FAILURE;
+}
+
 
 //get  system state packet from gps
 int get_system_state_packet(an_packet_t *an_packet, system_state_packet_t *system_state_packet)
@@ -152,6 +164,24 @@ void set_ecef_packet_rate()
 	an_packet_free(&an_packet);
 }
 
+//set the desired rate for the ecef packets
+void set_utm_packet_rate()
+{
+	an_packet_t *an_packet;
+	packet_periods_packet_t utm_rate_packet;
+
+	utm_rate_packet.clear_existing_packets = 0;
+	utm_rate_packet.permanent = 1;
+	utm_rate_packet.packet_periods[0].packet_id = packet_id_utm_position;
+	utm_rate_packet.packet_periods[0].period = MAXIMUM_PACKET_PERIODS;
+
+	an_packet = encode_packet_periods_packet(&utm_rate_packet);
+
+	an_packet_transmit(an_packet);
+
+	an_packet_free(&an_packet);
+}
+
 
 //set the desired rate for the angular acc packets
 void set_angular_acc_packet_rate()
@@ -174,6 +204,7 @@ void set_angular_acc_packet_rate()
 //start the the gps loop
 int run_gps_loop()
 {
+ // flag to indicate gps loops is running
 	an_decoder_t an_decoder;
 	an_packet_t *an_packet, *an_packet_request;
 
@@ -181,6 +212,7 @@ int run_gps_loop()
 	raw_sensors_packet_t raw_sensors_packet;
 
 	ecef_position_packet_t ecef_position_packet;
+	utm_position_packet_t utm_position_packet;
 	angular_acceleration_packet_t angular_acceleration_packet;
 
 	vehicle_state_t vehicle_state_buf; //hold kinematic data
@@ -224,7 +256,10 @@ int run_gps_loop()
 
 	//Initialize requests for desired packets
 	set_angular_acc_packet_rate();
-	loop_flag = true;
+	set_utm_packet_rate();
+
+
+	gps_loop_flag = true;
 	while (1)
 	{
 		loop_entered = 1;
@@ -257,8 +292,8 @@ int run_gps_loop()
 						vehicle_state_buf.heading = system_state_packet.orientation[2];
 
 						 //position
-						vehicle_state_buf.coordinates.x = system_state_packet.latitude * 1000; //coordinates in [mm]
-						vehicle_state_buf.coordinates.y = system_state_packet.longitude * 1000; //coordinates in [mm]
+						//vehicle_state_buf.coordinates.x = system_state_packet.latitude * 1000; //coordinates in [mm]
+						//vehicle_state_buf.coordinates.y = system_state_packet.longitude * 1000; //coordinates in [mm]
 						//printf("\tRoll = %f, Pitch = %f, Heading = %f\n", system_state_packet.orientation[0] * RADIANS_TO_DEGREES, system_state_packet.orientation[1] * RADIANS_TO_DEGREES, system_state_packet.orientation[2] * RADIANS_TO_DEGREES);
 					}
 					else{
@@ -280,6 +315,19 @@ int run_gps_loop()
 					}
 				}
 
+				else if (an_packet->id == packet_id_utm_position)
+				{
+					//write ecef data variable
+					if (get_utm_pos_state_packet(an_packet, &utm_position_packet) == DECODE_SUCCES){
+						vehicle_state_buf.coordinates.x = utm_position_packet.position[0] * 1000; //coordinates in [mm]
+						vehicle_state_buf.coordinates.y = utm_position_packet.position[1] * 1000; //coordinates in [mm]
+						//printf("\tPosition X: %f Y: %f\n", ecef_position_packet.position[0], ecef_position_packet.position[1]);
+					}
+					else{
+						//printf("Couldn't decode angular acceleration  packet\n");
+					}
+				}
+
 
 				else
 				{
@@ -288,7 +336,9 @@ int run_gps_loop()
 				
 				/* Ensure that you free the an_packet when your done with it or you will leak memory */
 				an_packet_free(&an_packet);
+				getFlag_gps = false;
 				cur_vehicle_state = vehicle_state_buf;
+				getFlag_gps = true;
 			}
 		}
 #ifdef _WIN32
