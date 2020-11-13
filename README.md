@@ -1,4 +1,9 @@
 # Tel-Aviv university's formula student driverless 
+
+Notes: 
+* This project started when I had little experience.
+* The project never came to full fruiton and was halted relativley early.
+
 This is the repository for the initial version of Tel-Aviv university's formula student driverless vehicle.  
 Currently work in progress and has not been fully tested.  
 
